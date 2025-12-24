@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { Anchor, Settings } from 'lucide-react';
 
-export default function Header({ date = new Date() }) {
+export default function Header({ date = new Date(), onSettingsClick }) {
   const dayOfWeek = format(date, 'EEEE');
   const formattedDate = format(date, 'MMMM d');
   
@@ -23,6 +23,7 @@ export default function Header({ date = new Date() }) {
         </div>
         
         <button 
+          onClick={onSettingsClick}
           className="p-2.5 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors"
           aria-label="Settings"
         >
