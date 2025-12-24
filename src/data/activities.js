@@ -105,6 +105,15 @@ export const defaultActivities = [
       defaultValue: 0
     }
   },
+    {
+    id: 'sunlight',
+    name: 'Sunlight',
+    icon: 'BookOpen',
+    type: 'checkbox',
+    color: 'calm',
+    description: 'Did you get any sun today?',
+    config: {}
+  },
   {
     id: 'journaling',
     name: 'Journaling',
