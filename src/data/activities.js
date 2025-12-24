@@ -108,7 +108,7 @@ export const defaultActivities = [
     {
     id: 'sunlight',
     name: 'Sunlight',
-    icon: 'BookOpen',
+    icon: 'Sun',
     type: 'checkbox',
     color: 'calm',
     description: 'Did you get any sun today?',
