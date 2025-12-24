@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, X, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote } from 'lucide-react';
+import { ArrowLeft, X, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote, Eye, Brain } from 'lucide-react';
 import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
 import { defaultMedications } from '../hooks/useMedications';
 
@@ -366,9 +366,19 @@ export default function HistoryView({ onBack, onClose }) {
                         const labels = ['', 'Terrible', 'Poor', 'Okay', 'Good', 'Great'];
                         displayValue = `${value}/5 - ${labels[value] || ''}`;
                       } else if (entry.activity_id === 'mood') {
-                        displayValue = `${value}/10`;
-                      } else if (entry.activity_id === 'episode-intensity') {
-                        displayValue = `${value}/10`;
+                        // Mood is now -4 to 4
+                        let moodLabel = 'Baseline';
+                        if (value <= -3) moodLabel = 'Depressed';
+                        else if (value <= -1) moodLabel = 'Low';
+                        else if (value >= 3) moodLabel = 'Manic';
+                        else if (value >= 1) moodLabel = 'Elevated';
+                        displayValue = `${value} - ${moodLabel}`;
+                      } else if (entry.activity_id === 'episode-intensity' || entry.activity_id === 'paranoia' || entry.activity_id === 'scrambled-brains') {
+                        let severityLabel = 'None';
+                        if (value >= 8) severityLabel = 'Severe';
+                        else if (value >= 5) severityLabel = 'Moderate';
+                        else if (value >= 1) severityLabel = 'Mild';
+                        displayValue = `${value}/10 - ${severityLabel}`;
                       } else {
                         displayValue = value.toString();
                       }
@@ -383,6 +393,8 @@ export default function HistoryView({ onBack, onClose }) {
                       'exercise': 'Exercise',
                       'mood': 'Mood',
                       'episode-intensity': 'Episode Intensity',
+                      'paranoia': 'Paranoia',
+                      'scrambled-brains': 'Scrambled Brains',
                       'journaling': 'Journaling',
                       'notes': 'Notes'
                     };
@@ -395,6 +407,8 @@ export default function HistoryView({ onBack, onClose }) {
                           {entry.activity_id === 'exercise' && <Dumbbell className="w-4 h-4" />}
                           {entry.activity_id === 'mood' && <Heart className="w-4 h-4" />}
                           {entry.activity_id === 'episode-intensity' && <Gauge className="w-4 h-4" />}
+                          {entry.activity_id === 'paranoia' && <Eye className="w-4 h-4" />}
+                          {entry.activity_id === 'scrambled-brains' && <Brain className="w-4 h-4" />}
                           {entry.activity_id === 'journaling' && <BookOpen className="w-4 h-4" />}
                           {entry.activity_id === 'notes' && <StickyNote className="w-4 h-4" />}
                         </div>
