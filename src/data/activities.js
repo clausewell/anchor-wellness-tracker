@@ -51,6 +51,24 @@ export const defaultActivities = [
     }
   },
   {
+    id: 'stretch',
+    name: 'Stretching',
+    icon: 'Sun',
+    type: 'checkbox',
+    color: 'grove',
+    description: 'Did do any stretching today?',
+    config: {}
+  },
+  {
+    id: 'sunshine',
+    name: 'Sunshine',
+    icon: 'Sun',
+    type: 'checkbox',
+    color: 'grove',
+    description: 'Did you get any sun today?',
+    config: {}
+  },
+  {
     id: 'mood',
     name: 'Mood',
     icon: 'Heart',
@@ -104,15 +122,6 @@ export const defaultActivities = [
       },
       defaultValue: 0
     }
-  },
-    {
-    id: 'sunlight',
-    name: 'Sunlight',
-    icon: 'Sun',
-    type: 'checkbox',
-    color: 'calm',
-    description: 'Did you get any sun today?',
-    config: {}
   },
   {
     id: 'journaling',
