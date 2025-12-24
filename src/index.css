@@ -6,6 +6,11 @@
   A gentle companion, not a medical chart.
 */
 
+*:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 @theme {
   /* Primary palette - warm earth tones that feel stable */
   --color-sand-50: #fefdfb;
