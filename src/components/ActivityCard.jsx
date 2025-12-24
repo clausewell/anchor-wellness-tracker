@@ -13,7 +13,10 @@ import {
   Gauge,
   StickyNote,
   Eye,
-  Brain
+  Brain,
+  Sun,
+  CloudSun,
+  ChevronsLeftRight
 } from 'lucide-react';
 
 // Icon mapping
@@ -27,7 +30,10 @@ const iconMap = {
   Gauge,
   StickyNote,
   Eye,
-  Brain
+  Brain,
+  Sun,
+  CloudSun,
+  ChevronsLeftRight
 };
 
 // Color classes mapping
