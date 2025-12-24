@@ -36,7 +36,7 @@ export const defaultActivities = [
       max: 24,
       step: 0.5,
       unit: 'hours',
-      defaultValue: 7
+      defaultValue: 8
     }
   },
   {
@@ -48,7 +48,6 @@ export const defaultActivities = [
     description: 'What exercise did you do today?',
     config: {
       placeholder: 'e.g., 30 min walk, yoga class...',
-      optional: true
     }
   },
   {
