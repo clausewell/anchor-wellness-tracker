@@ -11,6 +11,10 @@
   box-shadow: none;
 }
 
+* {
+  --tw-ring-color: transparent;
+}
+
 @theme {
   /* Primary palette - warm earth tones that feel stable */
   --color-sand-50: #fefdfb;
