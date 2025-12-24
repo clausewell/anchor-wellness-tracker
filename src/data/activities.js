@@ -36,7 +36,7 @@ export const defaultActivities = [
       max: 24,
       step: 0.5,
       unit: 'hours',
-      defaultValue: 8
+      defaultValue: 7
     }
   },
   {
@@ -48,6 +48,7 @@ export const defaultActivities = [
     description: 'What exercise did you do today?',
     config: {
       placeholder: 'e.g., 30 min walk, yoga class...',
+      optional: true
     }
   },
   {
@@ -70,29 +71,11 @@ export const defaultActivities = [
     }
   },
   {
-    id: 'episode-intensity',
-    name: 'Episode Intensity',
-    icon: 'Gauge',
-    type: 'scale',
-    color: 'blush',
-    description: 'How intense is any current episode?',
-    config: {
-      min: 0,
-      max: 10,
-      labels: {
-        0: 'None',
-        5: 'Moderate',
-        10: 'Severe'
-      },
-      defaultValue: 0
-    }
-  },
-  {
     id: 'paranoia',
     name: 'Paranoia',
     icon: 'Eye',
     type: 'scale',
-    color: 'blush',
+    color: 'ember',
     description: 'How paranoid are you feeling?',
     config: {
       min: 0,
@@ -110,7 +93,7 @@ export const defaultActivities = [
     name: 'Scrambled Brains',
     icon: 'Brain',
     type: 'scale',
-    color: 'blush',
+    color: 'ember',
     description: 'How scattered is your thinking?',
     config: {
       min: 0,
