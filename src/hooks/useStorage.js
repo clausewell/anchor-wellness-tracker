@@ -4,7 +4,7 @@ import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
 /**
  * Get today's date as a string key (YYYY-MM-DD) in local timezone
  */
-export function getTodayDateKey() {
+export function getTodayKey() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
