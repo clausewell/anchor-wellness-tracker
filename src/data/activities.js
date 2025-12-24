@@ -53,7 +53,7 @@ export const defaultActivities = [
   {
     id: 'stretch',
     name: 'Stretching',
-    icon: 'Sun',
+    icon: 'ChevronsLeftRight',
     type: 'checkbox',
     color: 'grove',
     description: 'Did do any stretching today?',
@@ -131,6 +131,17 @@ export const defaultActivities = [
     color: 'calm',
     description: 'Did you journal today?',
     config: {}
+  },
+  {
+    id: 'weather',
+    name: 'Weather',
+    icon: 'CloudSun',
+    type: 'text',
+    color: 'grove',
+    description: 'What was the weather like today?',
+    config: {
+      placeholder: 'e.g., Sunny and 70 all day...',
+    }
   },
   {
     id: 'notes',
