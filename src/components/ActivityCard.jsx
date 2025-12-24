@@ -11,7 +11,9 @@ import {
   ChevronDown,
   ChevronUp,
   Gauge,
-  StickyNote
+  StickyNote,
+  Eye,
+  Brain
 } from 'lucide-react';
 
 // Icon mapping
@@ -23,7 +25,9 @@ const iconMap = {
   Heart,
   BookOpen,
   Gauge,
-  StickyNote
+  StickyNote,
+  Eye,
+  Brain
 };
 
 // Color classes mapping
@@ -180,27 +184,29 @@ function NumberInput({ value, onChange, config, colors }) {
 
 // Scale/slider input component
 function ScaleInput({ value, onChange, config, colors }) {
-  const { min = 1, max = 10, labels = {}, defaultValue = 5 } = config || {};
+  const { min = 1, max = 10, step = 1, labels = {}, defaultValue = 5 } = config || {};
   const currentValue = value ?? defaultValue;
   
   const getLabel = (val) => {
     if (labels[val]) return labels[val];
+    if (labels[String(val)]) return labels[String(val)];
     return null;
   };
   
   return (
     <div className="w-full space-y-2">
       <div className="flex justify-between text-xs text-sand-500 dark:text-sand-400">
-        <span>{labels[min] || min}</span>
-        <span>{labels[max] || max}</span>
+        <span>{labels[min] || labels[String(min)] || min}</span>
+        <span>{labels[max] || labels[String(max)] || max}</span>
       </div>
       
       <input
         type="range"
         min={min}
         max={max}
+        step={step}
         value={currentValue}
-        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
         className="w-full h-2 bg-sand-200 dark:bg-night-700 rounded-full appearance-none cursor-pointer
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:w-6
