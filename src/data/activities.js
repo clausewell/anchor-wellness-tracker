@@ -47,8 +47,7 @@ export const defaultActivities = [
     color: 'grove',
     description: 'What exercise did you do today?',
     config: {
-      placeholder: 'e.g., 30 min walk, yoga class...',
-      optional: true
+      placeholder: 'e.g., 30 min walk, yoga class...'
     }
   },
   {
