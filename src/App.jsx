@@ -5,10 +5,12 @@ import Header from './components/Header';
 import DailyProgress from './components/DailyProgress';
 import ActivityCard from './components/ActivityCard';
 import MedicationTracker from './components/MedicationTracker';
+import Settings from './components/Settings';
 import { Pill, Activity } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('meds'); // 'meds' or 'activities'
+  const [showSettings, setShowSettings] = useState(false);
   const { getTodayEntries, setTodayEntry } = useDailyEntries();
   const todayEntries = getTodayEntries();
   
@@ -21,9 +23,13 @@ function App() {
     a => !a.id.includes('meds') && !a.id.includes('medication')
   );
   
+  if (showSettings) {
+    return <Settings onClose={() => setShowSettings(false)} />;
+  }
+  
   return (
     <div className="min-h-screen bg-sand-100 dark:bg-night-900 flex flex-col">
-      <Header />
+      <Header onSettingsClick={() => setShowSettings(true)} />
       
       {/* Tab navigation */}
       <div className="px-5 mb-4">
