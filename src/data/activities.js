@@ -47,7 +47,8 @@ export const defaultActivities = [
     color: 'grove',
     description: 'What exercise did you do today?',
     config: {
-      placeholder: 'e.g., 30 min walk, yoga class...'
+      placeholder: 'e.g., 30 min walk, yoga class...',
+      optional: true
     }
   },
   {
@@ -58,14 +59,15 @@ export const defaultActivities = [
     color: 'ember',
     description: 'Where are you on the spectrum?',
     config: {
-      min: 1,
-      max: 10,
+      min: -4,
+      max: 4,
+      step: 0.5,
       labels: {
-        1: 'Depressed',
-        5: 'Balanced',
-        10: 'Manic'
+        '-4': 'Depressed',
+        '0': 'Baseline',
+        '4': 'Manic'
       },
-      defaultValue: 5
+      defaultValue: 0
     }
   },
   {
@@ -75,6 +77,42 @@ export const defaultActivities = [
     type: 'scale',
     color: 'blush',
     description: 'How intense is any current episode?',
+    config: {
+      min: 0,
+      max: 10,
+      labels: {
+        0: 'None',
+        5: 'Moderate',
+        10: 'Severe'
+      },
+      defaultValue: 0
+    }
+  },
+  {
+    id: 'paranoia',
+    name: 'Paranoia',
+    icon: 'Eye',
+    type: 'scale',
+    color: 'blush',
+    description: 'How paranoid are you feeling?',
+    config: {
+      min: 0,
+      max: 10,
+      labels: {
+        0: 'None',
+        5: 'Moderate',
+        10: 'Severe'
+      },
+      defaultValue: 0
+    }
+  },
+  {
+    id: 'scrambled-brains',
+    name: 'Scrambled Brains',
+    icon: 'Brain',
+    type: 'scale',
+    color: 'blush',
+    description: 'How scattered is your thinking?',
     config: {
       min: 0,
       max: 10,
