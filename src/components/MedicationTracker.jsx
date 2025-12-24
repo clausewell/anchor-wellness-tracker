@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pill, Sun, Moon, Plus } from 'lucide-react';
 import { defaultMedications, useMedicationLogs } from '../hooks/useMedications';
 import DaytimeMedCard from './DaytimeMedCard';
@@ -8,6 +8,15 @@ import ExtraMedCard from './ExtraMedCard';
 
 export default function MedicationTracker() {
   const [showAddExtra, setShowAddExtra] = useState(false);
+  const [medications, setMedications] = useState(defaultMedications);
+  
+  // Load saved medications config
+  useEffect(() => {
+    const saved = localStorage.getItem('anchor-medications-config');
+    if (saved) {
+      setMedications(JSON.parse(saved));
+    }
+  }, []);
   
   const {
     todayLogs,
@@ -24,18 +33,18 @@ export default function MedicationTracker() {
   } = useMedicationLogs();
   
   // Calculate daytime completion
-  const daytimeMeds = defaultMedications.daytime;
-  const totalDaytimeDoses = daytimeMeds.reduce((sum, med) => sum + med.timesPerDay, 0);
+  const daytimeMeds = medications.daytime;
+  const totalDaytimeDoses = daytimeMeds.reduce((sum, med) => sum + (med.timesPerDay || 1), 0);
   const completedDaytimeDoses = daytimeMeds.reduce((sum, med) => {
     let count = 0;
-    for (let i = 1; i <= med.timesPerDay; i++) {
+    for (let i = 1; i <= (med.timesPerDay || 1); i++) {
       if (isDoseTaken(med.id, i)) count++;
     }
     return sum + count;
   }, 0);
   
   // Calculate evening completion
-  const eveningMeds = defaultMedications.evening;
+  const eveningMeds = medications.evening;
   const completedEveningDoses = eveningMeds.filter(med => 
     isDoseTaken(med.id, 1)
   ).length;
