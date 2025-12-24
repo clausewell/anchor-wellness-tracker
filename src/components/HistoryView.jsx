@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, X, ChevronLeft, ChevronRight, Check, Star, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote } from 'lucide-react';
+import { ArrowLeft, X, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote } from 'lucide-react';
 import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
+import { defaultMedications } from '../hooks/useMedications';
 
 const iconMap = {
   Moon,
@@ -47,8 +48,17 @@ export default function HistoryView({ onBack, onClose }) {
   const [medLogs, setMedLogs] = useState([]);
   const [dailyEntries, setDailyEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [medications, setMedications] = useState(defaultMedications);
 
   const dateKey = getDateKey(selectedDate);
+
+  // Load saved medications config
+  useEffect(() => {
+    const saved = localStorage.getItem('anchor-medications-config');
+    if (saved) {
+      setMedications(JSON.parse(saved));
+    }
+  }, []);
 
   // Load data for selected date
   useEffect(() => {
@@ -107,10 +117,79 @@ export default function HistoryView({ onBack, onClose }) {
     return getDateKey(today) === dateKey;
   };
 
-  // Group medications by type
-  const daytimeMeds = medLogs.filter(m => !m.custom_med_name && ['propranolol', 'xanax-xr'].includes(m.medication_id));
-  const eveningMeds = medLogs.filter(m => !m.custom_med_name && !['propranolol', 'xanax-xr'].includes(m.medication_id));
-  const extraMeds = medLogs.filter(m => m.custom_med_name);
+  // Helper to get medication config by id
+  const getMedConfig = (medId) => {
+    const daytimeMed = medications.daytime.find(m => m.id === medId);
+    if (daytimeMed) return { ...daytimeMed, type: 'daytime' };
+    
+    const eveningMed = medications.evening.find(m => m.id === medId);
+    if (eveningMed) return { ...eveningMed, type: 'evening' };
+    
+    return null;
+  };
+
+  // Helper to format medication display
+  const formatMedDisplay = (log) => {
+    // Extra/PRN med
+    if (log.custom_med_name) {
+      return {
+        name: log.custom_med_name,
+        dosage: log.dosage_taken,
+        isExtra: true
+      };
+    }
+
+    const config = getMedConfig(log.medication_id);
+    if (!config) {
+      return {
+        name: log.medication_id,
+        dosage: log.dosage_value_taken ? `${log.dosage_value_taken}mg` : null,
+        isExtra: false
+      };
+    }
+
+    // Use the logged dosage if it exists (for adjustable meds), otherwise use config
+    let dosage = config.dosage;
+    if (log.dosage_value_taken && config.dosageAdjustable) {
+      dosage = `${log.dosage_value_taken}${config.dosageUnit || 'mg'}`;
+    }
+
+    return {
+      name: config.name,
+      dosage: dosage,
+      timesPerDay: config.timesPerDay,
+      type: config.type,
+      isExtra: false
+    };
+  };
+
+  // Sort and organize medication logs
+  const organizedMeds = () => {
+    // Separate regular meds from extra meds
+    const regularLogs = medLogs.filter(m => !m.custom_med_name);
+    const extraLogs = medLogs.filter(m => m.custom_med_name);
+
+    // Group regular meds by daytime/evening following config order
+    const daytimeLogs = [];
+    const eveningLogs = [];
+
+    // Process daytime meds in config order
+    medications.daytime.forEach(configMed => {
+      const logs = regularLogs.filter(l => l.medication_id === configMed.id);
+      logs.sort((a, b) => a.dose_number - b.dose_number);
+      daytimeLogs.push(...logs);
+    });
+
+    // Process evening meds in config order
+    medications.evening.forEach(configMed => {
+      const logs = regularLogs.filter(l => l.medication_id === configMed.id);
+      eveningLogs.push(...logs);
+    });
+
+    return { daytimeLogs, eveningLogs, extraLogs };
+  };
+
+  const { daytimeLogs, eveningLogs, extraLogs } = organizedMeds();
 
   return (
     <div className="fixed inset-0 z-50 bg-sand-100 dark:bg-night-900 overflow-auto">
@@ -170,32 +249,99 @@ export default function HistoryView({ onBack, onClose }) {
           </div>
         ) : (
           <>
-            {/* Medications */}
-            {medLogs.length > 0 && (
+            {/* Daytime Medications */}
+            {daytimeLogs.length > 0 && (
               <section>
-                <h3 className="font-semibold text-sand-900 dark:text-sand-100 mb-3">Medications</h3>
+                <div className="flex items-center gap-2 mb-3">
+                  <Sun className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-semibold text-sand-900 dark:text-sand-100">Daytime Meds</h3>
+                </div>
                 <div className="bg-white dark:bg-night-800 rounded-xl border border-sand-200 dark:border-night-700 divide-y divide-sand-100 dark:divide-night-700">
-                  {medLogs.map((log) => (
-                    <div key={log.id} className="flex items-center gap-3 p-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        log.taken ? 'bg-grove-500 text-white' : 'bg-sand-200 dark:bg-night-700 text-sand-400'
-                      }`}>
-                        {log.taken ? <Check className="w-4 h-4" /> : null}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sand-900 dark:text-sand-100">
-                          {log.custom_med_name || log.medication_id}
-                          {log.dose_number > 1 && ` (Dose ${log.dose_number})`}
-                        </p>
-                        {log.taken_at && (
-                          <p className="text-sm text-sand-500 dark:text-sand-400">
-                            {formatTime(log.taken_at)}
-                            {log.dosage_taken && ` • ${log.dosage_taken}`}
+                  {daytimeLogs.map((log) => {
+                    const display = formatMedDisplay(log);
+                    return (
+                      <div key={log.id} className="flex items-center gap-3 p-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          log.taken ? 'bg-grove-500 text-white' : 'bg-sand-200 dark:bg-night-700 text-sand-400'
+                        }`}>
+                          {log.taken ? <Check className="w-4 h-4" /> : null}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sand-900 dark:text-sand-100">
+                            {display.name}
+                            {display.timesPerDay > 1 && ` (Dose ${log.dose_number})`}
                           </p>
-                        )}
+                          <p className="text-sm text-sand-500 dark:text-sand-400">
+                            {display.dosage && <span>{display.dosage}</span>}
+                            {log.taken_at && <span>{display.dosage ? ' • ' : ''}{formatTime(log.taken_at)}</span>}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Extra Medications */}
+            {extraLogs.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="font-semibold text-sand-900 dark:text-sand-100">Extra Meds</h3>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800/50 divide-y divide-amber-100 dark:divide-amber-800/30">
+                  {extraLogs.map((log) => {
+                    const display = formatMedDisplay(log);
+                    return (
+                      <div key={log.id} className="flex items-center gap-3 p-3">
+                        <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                          <Check className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sand-900 dark:text-sand-100">
+                            {display.name}
+                          </p>
+                          <p className="text-sm text-sand-500 dark:text-sand-400">
+                            {display.dosage && <span>{display.dosage}</span>}
+                            {log.taken_at && <span>{display.dosage ? ' • ' : ''}{formatTime(log.taken_at)}</span>}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Evening Medications */}
+            {eveningLogs.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-3">
+                  <Moon className="w-5 h-5 text-indigo-500" />
+                  <h3 className="font-semibold text-sand-900 dark:text-sand-100">Evening Meds</h3>
+                </div>
+                <div className="bg-white dark:bg-night-800 rounded-xl border border-sand-200 dark:border-night-700 divide-y divide-sand-100 dark:divide-night-700">
+                  {eveningLogs.map((log) => {
+                    const display = formatMedDisplay(log);
+                    return (
+                      <div key={log.id} className="flex items-center gap-3 p-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          log.taken ? 'bg-grove-500 text-white' : 'bg-sand-200 dark:bg-night-700 text-sand-400'
+                        }`}>
+                          {log.taken ? <Check className="w-4 h-4" /> : null}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sand-900 dark:text-sand-100">
+                            {display.name}
+                          </p>
+                          <p className="text-sm text-sand-500 dark:text-sand-400">
+                            {display.dosage && <span>{display.dosage}</span>}
+                            {log.taken_at && <span>{display.dosage ? ' • ' : ''}{formatTime(log.taken_at)}</span>}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -213,10 +359,33 @@ export default function HistoryView({ onBack, onClose }) {
                     if (typeof value === 'boolean') {
                       displayValue = value ? 'Yes' : 'No';
                     } else if (typeof value === 'number') {
-                      displayValue = value.toString();
+                      // Add context based on activity type
+                      if (entry.activity_id === 'sleep-hours') {
+                        displayValue = `${value} hours`;
+                      } else if (entry.activity_id === 'sleep-quality') {
+                        const labels = ['', 'Terrible', 'Poor', 'Okay', 'Good', 'Great'];
+                        displayValue = `${value}/5 - ${labels[value] || ''}`;
+                      } else if (entry.activity_id === 'mood') {
+                        displayValue = `${value}/10`;
+                      } else if (entry.activity_id === 'episode-intensity') {
+                        displayValue = `${value}/10`;
+                      } else {
+                        displayValue = value.toString();
+                      }
                     } else if (typeof value === 'string') {
                       displayValue = value;
                     }
+
+                    // Activity name mapping
+                    const activityNames = {
+                      'sleep-quality': 'Sleep Quality',
+                      'sleep-hours': 'Hours Slept',
+                      'exercise': 'Exercise',
+                      'mood': 'Mood',
+                      'episode-intensity': 'Episode Intensity',
+                      'journaling': 'Journaling',
+                      'notes': 'Notes'
+                    };
 
                     return (
                       <div key={entry.id} className="flex items-center gap-3 p-3">
@@ -230,8 +399,8 @@ export default function HistoryView({ onBack, onClose }) {
                           {entry.activity_id === 'notes' && <StickyNote className="w-4 h-4" />}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-sand-900 dark:text-sand-100 capitalize">
-                            {entry.activity_id.replace(/-/g, ' ')}
+                          <p className="font-medium text-sand-900 dark:text-sand-100">
+                            {activityNames[entry.activity_id] || entry.activity_id}
                           </p>
                           <p className="text-sm text-sand-500 dark:text-sand-400">
                             {displayValue}
