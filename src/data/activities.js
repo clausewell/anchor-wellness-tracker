@@ -60,6 +60,17 @@ export const defaultActivities = [
     config: {}
   },
   {
+    id: 'weather',
+    name: 'Weather',
+    icon: 'CloudSun',
+    type: 'text',
+    color: 'grove',
+    description: 'What was the weather like today?',
+    config: {
+      placeholder: 'e.g., Sunny and 70 all day...',
+    }
+  },
+  {
     id: 'sunshine',
     name: 'Sunshine',
     icon: 'Sun',
@@ -74,7 +85,7 @@ export const defaultActivities = [
     icon: 'Heart',
     type: 'scale',
     color: 'ember',
-    description: 'Where are you on the spectrum?',
+    description: 'Where are you, -4 to 4?',
     config: {
       min: -4,
       max: 4,
@@ -100,7 +111,7 @@ export const defaultActivities = [
       labels: {
         0: 'None',
         5: 'Moderate',
-        10: 'Severe'
+        10: 'Curtains Closed'
       },
       defaultValue: 0
     }
@@ -131,17 +142,6 @@ export const defaultActivities = [
     color: 'calm',
     description: 'Did you journal today?',
     config: {}
-  },
-  {
-    id: 'weather',
-    name: 'Weather',
-    icon: 'CloudSun',
-    type: 'text',
-    color: 'grove',
-    description: 'What was the weather like today?',
-    config: {
-      placeholder: 'e.g., Sunny and 70 all day...',
-    }
   },
   {
     id: 'notes',
