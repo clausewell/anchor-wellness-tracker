@@ -148,12 +148,11 @@ export const defaultActivities = [
     name: 'Notes',
     icon: 'StickyNote',
     type: 'text',
-    color: 'sand',
-    description: 'Anything to note about today?',
+    color: 'calm',
+    description: 'Journal Entry',
     config: {
-      placeholder: 'Optional notes...',
+      placeholder: 'Describe the day...',
       multiline: true,
-      optional: true
     }
   }
 ];
