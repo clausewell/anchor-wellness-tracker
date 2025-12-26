@@ -1,4 +1,4 @@
-import { useState } from 'react'; 
+import { useState } from 'react';
 import { 
   Check, 
   Pill, 
@@ -14,9 +14,9 @@ import {
   StickyNote,
   Eye,
   Brain,
+  Sun,
   CloudSun,
-  ChevronsLeftRight,
-  Sun
+  ChevronsLeftRight
 } from 'lucide-react';
 
 // Icon mapping
@@ -31,9 +31,9 @@ const iconMap = {
   StickyNote,
   Eye,
   Brain,
+  Sun,
   CloudSun,
-  ChevronsLeftRight,
-  Sun
+  ChevronsLeftRight
 };
 
 // Color classes mapping
