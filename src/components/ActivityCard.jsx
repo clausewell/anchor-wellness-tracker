@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Check, 
-  Pill, 
+  Pill,
   Moon, 
   Clock, 
   Dumbbell, 
