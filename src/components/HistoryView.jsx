@@ -404,7 +404,7 @@ export default function HistoryView({ onBack, onClose }) {
                       'notes': 'Notes',
                       'weather': 'Weather',
                       'sunshine': 'Sunshine',
-                      'stretching': 'Stretching'
+                      'stretch': 'Stretching'
                     };
 
                     return (
@@ -421,7 +421,7 @@ export default function HistoryView({ onBack, onClose }) {
                           {entry.activity_id === 'notes' && <StickyNote className="w-4 h-4" />}
                           {entry.activity_id === 'weather' && <CloudSun className="w-4 h-4" />}
                           {entry.activity_id === 'sunshine' && <Sun className="w-4 h-4" />}
-                          {entry.activity_id === 'stretching' && <StretchHorizontal className="w-4 h-4" />}
+                          {entry.activity_id === 'stretch' && <StretchHorizontal className="w-4 h-4" />}
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sand-900 dark:text-sand-100">
