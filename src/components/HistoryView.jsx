@@ -414,6 +414,8 @@ export default function HistoryView({ onBack, onClose }) {
                           {entry.activity_id === 'scrambled-brains' && <Brain className="w-4 h-4" />}
                           {entry.activity_id === 'journaling' && <BookOpen className="w-4 h-4" />}
                           {entry.activity_id === 'notes' && <StickyNote className="w-4 h-4" />}
+                          {entry.activity_id === 'weather' && <CloudSun className="w-4 h-4" />}
+                          {entry.activity_id === 'sunshine' && <Sun className="w-4 h-4" />}
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sand-900 dark:text-sand-100">
