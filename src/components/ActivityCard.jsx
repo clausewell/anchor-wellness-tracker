@@ -14,9 +14,9 @@ import {
   StickyNote,
   Eye,
   Brain,
-  Sun,
   CloudSun,
-  ChevronsLeftRight
+  ChevronsLeftRight,
+  Sun
 } from 'lucide-react';
 
 // Icon mapping
@@ -31,9 +31,9 @@ const iconMap = {
   StickyNote,
   Eye,
   Brain,
-  Sun,
   CloudSun,
-  ChevronsLeftRight
+  ChevronsLeftRight,
+  Sun
 };
 
 // Color classes mapping
