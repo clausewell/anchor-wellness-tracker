@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, X, Pill, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote, Eye, Brain, CloudSun, StretchHorizontal } from 'lucide-react';
+import { ArrowLeft, X, Pill, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote, Eye, Brain, CloudSun, ChevronsLeftRight } from 'lucide-react';
 import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
 import { defaultMedications } from '../hooks/useMedications';
 
@@ -16,7 +16,7 @@ const iconMap = {
   Brain,
   Sun,
   CloudSun,
-  StretchHorizontal
+  ChevronsLeftRight
 };
 
 function formatDate(dateStr) {
