@@ -51,7 +51,7 @@ export const defaultActivities = [
     }
   },
   {
-    id: 'stretch',
+    id: 'stretching',
     name: 'Stretching',
     icon: 'ChevronsLeftRight',
     type: 'checkbox',
