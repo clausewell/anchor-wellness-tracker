@@ -1,22 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, X, Pill, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote, Eye, Brain, CloudSun, ChevronsLeftRight } from 'lucide-react';
+import { ArrowLeft, X, ChevronLeft, ChevronRight, Check, Star, Sun, Moon, Clock, Dumbbell, Heart, Gauge, BookOpen, StickyNote, Eye, Brain } from 'lucide-react';
 import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
 import { defaultMedications } from '../hooks/useMedications';
 
 const iconMap = {
-  Pill,
   Moon,
   Clock,
   Dumbbell,
   Heart,
-  BookOpen,
   Gauge,
-  StickyNote,
-  Eye,
-  Brain,
-  Sun,
-  CloudSun,
-  ChevronsLeftRight
+  BookOpen,
+  StickyNote
 };
 
 function formatDate(dateStr) {
@@ -398,13 +392,11 @@ export default function HistoryView({ onBack, onClose }) {
                       'sleep-hours': 'Hours Slept',
                       'exercise': 'Exercise',
                       'mood': 'Mood',
+                      'episode-intensity': 'Episode Intensity',
                       'paranoia': 'Paranoia',
                       'scrambled-brains': 'Scrambled Brains',
                       'journaling': 'Journaling',
-                      'notes': 'Notes',
-                      'weather': 'Weather',
-                      'sunshine': 'Sunshine',
-                      'stretch': 'Stretching'
+                      'notes': 'Notes'
                     };
 
                     return (
@@ -419,9 +411,6 @@ export default function HistoryView({ onBack, onClose }) {
                           {entry.activity_id === 'scrambled-brains' && <Brain className="w-4 h-4" />}
                           {entry.activity_id === 'journaling' && <BookOpen className="w-4 h-4" />}
                           {entry.activity_id === 'notes' && <StickyNote className="w-4 h-4" />}
-                          {entry.activity_id === 'weather' && <CloudSun className="w-4 h-4" />}
-                          {entry.activity_id === 'sunshine' && <Sun className="w-4 h-4" />}
-                          {entry.activity_id === 'stretch' && <StretchHorizontal className="w-4 h-4" />}
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sand-900 dark:text-sand-100">
