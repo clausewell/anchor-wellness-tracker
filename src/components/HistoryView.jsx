@@ -4,13 +4,19 @@ import { supabase, isSupabaseConfigured, USER_ID } from '../lib/supabase';
 import { defaultMedications } from '../hooks/useMedications';
 
 const iconMap = {
+  Pill,
   Moon,
   Clock,
   Dumbbell,
   Heart,
-  Gauge,
   BookOpen,
-  StickyNote
+  Gauge,
+  StickyNote,
+  Eye,
+  Brain,
+  Sun,
+  CloudSun,
+  ChevronsLeftRight
 };
 
 function formatDate(dateStr) {
