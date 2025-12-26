@@ -16,7 +16,7 @@ const iconMap = {
   Brain,
   Sun,
   CloudSun,
-  ChevronsLeftRight
+  StretchHorizontal
 };
 
 function formatDate(dateStr) {
