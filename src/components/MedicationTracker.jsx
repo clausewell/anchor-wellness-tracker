@@ -6,7 +6,7 @@ import EveningMedCard from './EveningMedCard';
 import AddExtraMedModal from './AddExtraMedModal';
 import ExtraMedCard from './ExtraMedCard';
 
-export default function MedicationTracker() {
+export default function MedicationTracker({ viewingDate = null }) {
   const [showAddExtra, setShowAddExtra] = useState(false);
   const [medications, setMedications] = useState(defaultMedications);
   
@@ -19,9 +19,9 @@ export default function MedicationTracker() {
   }, []);
   
   const {
-    todayLogs,
-    todayEveningTime,
-    todayExtraMeds,
+    logs,
+    eveningTime,
+    extraMeds,
     toggleDose,
     updateDoseTime,
     updateDosage,
@@ -30,7 +30,7 @@ export default function MedicationTracker() {
     removeExtraMed,
     getDoseLog,
     isDoseTaken
-  } = useMedicationLogs();
+  } = useMedicationLogs(viewingDate);
   
   // Calculate daytime completion
   const daytimeMeds = medications.daytime;
@@ -84,7 +84,7 @@ export default function MedicationTracker() {
           ))}
           
           {/* Extra meds taken today */}
-          {todayExtraMeds.map((extraMed) => (
+          {extraMeds.map((extraMed) => (
             <ExtraMedCard
               key={extraMed.id}
               medication={extraMed}
@@ -118,14 +118,14 @@ export default function MedicationTracker() {
             </h2>
             <p className="text-sm text-sand-500 dark:text-sand-400">
               {completedEveningDoses} of {eveningMeds.length} taken
-              {todayEveningTime && ` at ${new Date(todayEveningTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`}
+              {eveningTime && ` at ${new Date(eveningTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`}
             </p>
           </div>
         </div>
         
         <EveningMedCard
           medications={eveningMeds}
-          eveningTime={todayEveningTime}
+          eveningTime={eveningTime}
           getDoseLog={getDoseLog}
           onToggleDose={toggleDose}
           onUpdateDosage={updateDosage}
