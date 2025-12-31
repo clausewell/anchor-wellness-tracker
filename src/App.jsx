@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDailyEntries } from './hooks/useStorage';
+import { useDailyEntries, getTodayKey, getDateKey } from './hooks/useStorage';
 import { defaultActivities } from './data/activities';
 import Header from './components/Header';
 import DailyProgress from './components/DailyProgress';
@@ -11,11 +11,26 @@ import { Pill, Activity } from 'lucide-react';
 function App() {
   const [activeTab, setActiveTab] = useState('meds'); // 'meds' or 'activities'
   const [showSettings, setShowSettings] = useState(false);
-  const { getTodayEntries, setTodayEntry } = useDailyEntries();
-  const todayEntries = getTodayEntries();
+  const [viewingDate, setViewingDate] = useState(null); // null = today, Date = editing past
+  
+  const { getEntriesForDate, setEntryForDate, loading } = useDailyEntries(viewingDate);
+  
+  const dateKey = viewingDate ? getDateKey(viewingDate) : getTodayKey();
+  const entries = getEntriesForDate(dateKey);
+  
+  const isEditingPast = viewingDate !== null;
   
   const handleActivityChange = (activityId, value) => {
-    setTodayEntry(activityId, value);
+    setEntryForDate(dateKey, activityId, value);
+  };
+  
+  const handleEditDay = (date) => {
+    setViewingDate(date);
+    setShowSettings(false);
+  };
+  
+  const handleBackToToday = () => {
+    setViewingDate(null);
   };
   
   // Filter out medication activities since we have a dedicated tracker now
@@ -24,12 +39,17 @@ function App() {
   );
   
   if (showSettings) {
-    return <Settings onClose={() => setShowSettings(false)} />;
+    return <Settings onClose={() => setShowSettings(false)} onEditDay={handleEditDay} />;
   }
   
   return (
     <div className="min-h-screen bg-sand-100 dark:bg-night-900 flex flex-col">
-      <Header onSettingsClick={() => setShowSettings(true)} />
+      <Header 
+        date={viewingDate || new Date()}
+        onSettingsClick={() => setShowSettings(true)}
+        isEditingPast={isEditingPast}
+        onBackToToday={handleBackToToday}
+      />
       
       {/* Tab navigation */}
       <div className="px-5 mb-4">
@@ -61,12 +81,12 @@ function App() {
       
       <main className="flex-1 pb-8 px-5">
         {activeTab === 'meds' ? (
-          <MedicationTracker />
+          <MedicationTracker viewingDate={viewingDate} />
         ) : (
           <>
             <DailyProgress 
               activities={nonMedActivities} 
-              entries={todayEntries} 
+              entries={entries} 
             />
             
             <div className="space-y-4 mt-4">
@@ -74,7 +94,7 @@ function App() {
                 <ActivityCard
                   key={activity.id}
                   activity={activity}
-                  value={todayEntries[activity.id]?.value}
+                  value={entries[activity.id]?.value}
                   onChange={(value) => handleActivityChange(activity.id, value)}
                 />
               ))}
