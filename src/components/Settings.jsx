@@ -3,7 +3,7 @@ import { X, Pill, Calendar, RotateCcw, ChevronRight } from 'lucide-react';
 import MedicationSettings from './MedicationSettings';
 import HistoryView from './HistoryView';
 
-export default function Settings({ onClose }) {
+export default function Settings({ onClose, onEditDay }) {
   const [activeView, setActiveView] = useState('menu'); // 'menu', 'medications', 'history'
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
@@ -43,7 +43,7 @@ export default function Settings({ onClose }) {
   }
 
   if (activeView === 'history') {
-    return <HistoryView onBack={() => setActiveView('menu')} onClose={onClose} />;
+    return <HistoryView onBack={() => setActiveView('menu')} onClose={onClose} onEditDay={onEditDay} />;
   }
 
   return (
