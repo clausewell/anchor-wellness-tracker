@@ -86,6 +86,16 @@ export function getTodayDateKey() {
 }
 
 /**
+ * Get date key from a Date object
+ */
+export function getDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Format time for display (12-hour format)
  */
 export function formatTime(date) {
@@ -100,16 +110,17 @@ export function formatTime(date) {
 
 /**
  * Hook for managing medication logs with Supabase
+ * @param {Date} viewingDate - Optional date to view/edit (defaults to today)
  */
-export function useMedicationLogs() {
-  const [todayLogs, setTodayLogs] = useState({});
-  const [todayEveningTime, setTodayEveningTimeState] = useState(null);
-  const [todayExtraMeds, setTodayExtraMedsState] = useState([]);
+export function useMedicationLogs(viewingDate = null) {
+  const [logs, setLogs] = useState({});
+  const [eveningTime, setEveningTimeState] = useState(null);
+  const [extraMeds, setExtraMedsState] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const dateKey = getTodayDateKey();
+  const dateKey = viewingDate ? getDateKey(viewingDate) : getTodayDateKey();
 
-  // Load today's data from Supabase
+  // Load data from Supabase
   useEffect(() => {
     if (!isSupabaseConfigured()) {
       console.log('Load: Supabase not configured');
@@ -117,22 +128,23 @@ export function useMedicationLogs() {
       return;
     }
 
-    async function loadTodayData() {
+    async function loadData() {
       console.log('Loading data for date:', dateKey);
+      setLoading(true);
       try {
         // Load medication logs
-        const { data: logs, error: logsError } = await supabase
+        const { data: logsData, error: logsError } = await supabase
           .from('medication_logs')
           .select('*')
           .eq('user_id', USER_ID)
           .eq('log_date', dateKey);
 
-        console.log('Loaded logs:', logs, 'Error:', logsError);
+        console.log('Loaded logs:', logsData, 'Error:', logsError);
         if (logsError) throw logsError;
 
         // Convert to our format: { "medId-doseNum": { taken, takenAt, dosageValue } }
         const logsMap = {};
-        logs?.forEach(log => {
+        logsData?.forEach(log => {
           const key = `${log.medication_id}-${log.dose_number}`;
           logsMap[key] = {
             taken: log.taken,
@@ -141,7 +153,7 @@ export function useMedicationLogs() {
           };
         });
         console.log('Processed logsMap:', logsMap);
-        setTodayLogs(logsMap);
+        setLogs(logsMap);
 
         // Load evening time
         const { data: eveningData, error: eveningError } = await supabase
@@ -152,10 +164,10 @@ export function useMedicationLogs() {
           .single();
 
         if (eveningError && eveningError.code !== 'PGRST116') throw eveningError;
-        setTodayEveningTimeState(eveningData?.taken_at || null);
+        setEveningTimeState(eveningData?.taken_at || null);
 
         // Load extra meds
-        const { data: extraMeds, error: extraError } = await supabase
+        const { data: extraMedsData, error: extraError } = await supabase
           .from('medication_logs')
           .select('*')
           .eq('user_id', USER_ID)
@@ -164,13 +176,13 @@ export function useMedicationLogs() {
 
         if (extraError) throw extraError;
         
-        const extras = extraMeds?.map(m => ({
+        const extras = extraMedsData?.map(m => ({
           id: m.id,
           name: m.custom_med_name,
           dosage: m.dosage_taken,
           takenAt: m.taken_at
         })) || [];
-        setTodayExtraMedsState(extras);
+        setExtraMedsState(extras);
 
       } catch (error) {
         console.error('Error loading medication data:', error);
@@ -179,7 +191,7 @@ export function useMedicationLogs() {
       }
     }
 
-    loadTodayData();
+    loadData();
   }, [dateKey]);
 
   /**
@@ -189,13 +201,13 @@ export function useMedicationLogs() {
     console.log('toggleDose called:', medicationId, doseNumber);
     console.log('isSupabaseConfigured:', isSupabaseConfigured());
     const key = `${medicationId}-${doseNumber}`;
-    const current = todayLogs[key];
+    const current = logs[key];
     const wasTaken = current?.taken || false;
     const newTaken = !wasTaken;
     const newTakenAt = newTaken ? new Date().toISOString() : null;
 
     // Optimistic update
-    setTodayLogs(prev => ({
+    setLogs(prev => ({
       ...prev,
       [key]: {
         ...prev[key],
@@ -231,22 +243,22 @@ export function useMedicationLogs() {
     } catch (error) {
       console.error('Error saving medication log:', error);
       // Revert on error
-      setTodayLogs(prev => ({
+      setLogs(prev => ({
         ...prev,
         [key]: current
       }));
     }
-  }, [todayLogs, dateKey]);
+  }, [logs, dateKey]);
 
   /**
    * Update the time for a dose
    */
   const updateDoseTime = useCallback(async (medicationId, doseNumber, time) => {
     const key = `${medicationId}-${doseNumber}`;
-    const current = todayLogs[key];
+    const current = logs[key];
 
     // Optimistic update
-    setTodayLogs(prev => ({
+    setLogs(prev => ({
       ...prev,
       [key]: {
         ...prev[key],
@@ -276,17 +288,17 @@ export function useMedicationLogs() {
     } catch (error) {
       console.error('Error updating dose time:', error);
     }
-  }, [todayLogs, dateKey]);
+  }, [logs, dateKey]);
 
   /**
    * Update dosage for adjustable meds
    */
   const updateDosage = useCallback(async (medicationId, doseNumber, dosageValue) => {
     const key = `${medicationId}-${doseNumber}`;
-    const current = todayLogs[key];
+    const current = logs[key];
 
     // Optimistic update
-    setTodayLogs(prev => ({
+    setLogs(prev => ({
       ...prev,
       [key]: {
         ...prev[key],
@@ -316,14 +328,14 @@ export function useMedicationLogs() {
     } catch (error) {
       console.error('Error updating dosage:', error);
     }
-  }, [todayLogs, dateKey]);
+  }, [logs, dateKey]);
 
   /**
    * Set evening meds batch time
    */
   const setEveningTime = useCallback(async (time) => {
     // Optimistic update
-    setTodayEveningTimeState(time);
+    setEveningTimeState(time);
 
     if (!isSupabaseConfigured()) return;
 
@@ -356,7 +368,7 @@ export function useMedicationLogs() {
     };
 
     // Optimistic update
-    setTodayExtraMedsState(prev => [...prev, newMed]);
+    setExtraMedsState(prev => [...prev, newMed]);
 
     if (!isSupabaseConfigured()) return newMed;
 
@@ -378,7 +390,7 @@ export function useMedicationLogs() {
       if (error) throw error;
 
       // Update with real ID
-      setTodayExtraMedsState(prev => 
+      setExtraMedsState(prev => 
         prev.map(m => m.id === newMed.id ? { ...m, id: data.id } : m)
       );
 
@@ -394,7 +406,7 @@ export function useMedicationLogs() {
    */
   const removeExtraMed = useCallback(async (extraMedId) => {
     // Optimistic update
-    setTodayExtraMedsState(prev => prev.filter(m => m.id !== extraMedId));
+    setExtraMedsState(prev => prev.filter(m => m.id !== extraMedId));
 
     if (!isSupabaseConfigured()) return;
 
@@ -415,8 +427,8 @@ export function useMedicationLogs() {
    */
   const getDoseLog = useCallback((medicationId, doseNumber) => {
     const key = `${medicationId}-${doseNumber}`;
-    return todayLogs[key] || null;
-  }, [todayLogs]);
+    return logs[key] || null;
+  }, [logs]);
 
   /**
    * Check if a dose was taken
@@ -428,9 +440,9 @@ export function useMedicationLogs() {
 
   return {
     // Data
-    todayLogs,
-    todayEveningTime,
-    todayExtraMeds,
+    logs,
+    eveningTime,
+    extraMeds,
     loading,
 
     // Actions
