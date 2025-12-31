@@ -331,13 +331,34 @@ function CalendarView({ onSelectDate, onBack, onClose }) {
 }
 
 // Detail View Component
-function DetailView({ selectedDate, onBack, onClose, onEditDay }) {
+function DetailView({ initialDate, onBack, onEditDay }) {
+  const [currentDate, setCurrentDate] = useState(initialDate);
   const [medLogs, setMedLogs] = useState([]);
   const [dailyEntries, setDailyEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [medications, setMedications] = useState(defaultMedications);
 
-  const dateKey = getDateKey(selectedDate);
+  const today = new Date();
+  const dateKey = getDateKey(currentDate);
+
+  const goToPrevDay = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() - 1);
+    setCurrentDate(newDate);
+  };
+
+  const goToNextDay = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + 1);
+    // Don't go past today
+    if (newDate <= today) {
+      setCurrentDate(newDate);
+    }
+  };
+
+  const isToday = () => {
+    return getDateKey(today) === dateKey;
+  };
 
   // Load saved medications config
   useEffect(() => {
@@ -473,21 +494,32 @@ function DetailView({ selectedDate, onBack, onClose, onEditDay }) {
     <div className="fixed inset-0 z-50 bg-sand-100 dark:bg-night-900 overflow-auto">
       {/* Header */}
       <div className="sticky top-0 bg-sand-100/80 dark:bg-night-900/80 backdrop-blur-lg border-b border-sand-200 dark:border-night-700">
-        <div className="px-5 py-4 flex items-center gap-4">
+        <div className="px-5 py-4 flex items-center justify-between">
           <button
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors"
-            aria-label="Back"
+            onClick={goToPrevDay}
+            className="p-2 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors"
+            aria-label="Previous day"
           >
-            <ArrowLeft className="w-6 h-6 text-sand-600 dark:text-sand-400" />
+            <ChevronLeft className="w-6 h-6 text-sand-600 dark:text-sand-400" />
           </button>
-          <h1 className="font-display font-semibold text-xl text-sand-900 dark:text-sand-100 flex-1">
+          
+          <h1 className="font-display font-semibold text-lg text-sand-900 dark:text-sand-100 text-center flex-1">
             {formatDate(dateKey)}
           </h1>
+          
           <button
-            onClick={onClose}
-            className="p-2 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors"
-            aria-label="Close"
+            onClick={goToNextDay}
+            disabled={isToday()}
+            className="p-2 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Next day"
+          >
+            <ChevronRight className="w-6 h-6 text-sand-600 dark:text-sand-400" />
+          </button>
+          
+          <button
+            onClick={onBack}
+            className="p-2 ml-2 rounded-xl hover:bg-sand-200 dark:hover:bg-night-700 transition-colors"
+            aria-label="Back to calendar"
           >
             <X className="w-6 h-6 text-sand-600 dark:text-sand-400" />
           </button>
@@ -496,7 +528,7 @@ function DetailView({ selectedDate, onBack, onClose, onEditDay }) {
         {/* Edit Day Button */}
         <div className="px-5 pb-4">
           <button
-            onClick={() => onEditDay(selectedDate)}
+            onClick={() => onEditDay(currentDate)}
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium
               bg-amber-100 dark:bg-amber-900/30 
               text-amber-700 dark:text-amber-300
@@ -668,9 +700,8 @@ export default function HistoryView({ onBack, onClose, onEditDay }) {
   if (view === 'detail' && selectedDate) {
     return (
       <DetailView
-        selectedDate={selectedDate}
+        initialDate={selectedDate}
         onBack={handleBackToCalendar}
-        onClose={onClose}
         onEditDay={onEditDay}
       />
     );
